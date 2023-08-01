@@ -67,6 +67,11 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Hit Animation")
 		UAnimMontage* HitAnim;
 
+	UPROPERTY(EditAnywhere, Category = "Death Animation")
+		UAnimMontage* DeathAnim;
+
+	void Death();
+
 	UFUNCTION(BlueprintCallable)
 		void SwordTrace(FVector Start, FVector End);
 

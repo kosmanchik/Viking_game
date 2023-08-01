@@ -46,10 +46,17 @@ void ACPP_Character::UpdateHealth(float Damage)
 {
 	ACPP_Character::Health -= Damage;
 	PlayAnimMontage(HitAnim);
-	if (Health <= 0)
+	if (ACPP_Character::Health <= 0)
 	{
-		UKismetSystemLibrary::PrintString(this, "Dead");
+		PlayAnimMontage(DeathAnim);
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ACPP_Character::Death, 2.5f);
 	}
+}
+
+void ACPP_Character::Death()
+{
+	UKismetSystemLibrary::PrintString(this, "Game Over");
+	this->Destroy();
 }
 
 void ACPP_Character::SwordTrace(FVector Start, FVector End)
@@ -57,17 +64,15 @@ void ACPP_Character::SwordTrace(FVector Start, FVector End)
 	TArray<AActor*> Ignore;
 	FHitResult OutHit;
 
-	UKismetSystemLibrary::LineTraceSingle(this, Start, End, ETraceTypeQuery::TraceTypeQuery1, false, Ignore, EDrawDebugTrace::None, OutHit, true);
-
+	UKismetSystemLibrary::LineTraceSingle(this, Start, End, ETraceTypeQuery::TraceTypeQuery10, false, Ignore, EDrawDebugTrace::None, OutHit, true);
+	
 	if (OutHit.GetActor())
 	{
 		if (Cast<ACPP_Enemy>(OutHit.GetActor()))
 		{
-			UKismetSystemLibrary::PrintString(this, "Hit");
 			UGameplayStatics::ApplyDamage(OutHit.GetActor(), 10.0f, this->GetController(), this, DamageType);
 		}
 	}
-
 }
 
 // Called when the game starts or when spawned

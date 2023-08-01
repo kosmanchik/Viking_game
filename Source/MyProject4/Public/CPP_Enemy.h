@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/KismetMathLibrary.h"
+
 #include "CPP_Enemy.generated.h"
 
 UCLASS()
@@ -23,6 +26,23 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Hit Animation")
 		UAnimMontage* HitAnim;
+
+	UPROPERTY(EditAnywhere, Category = "Attack Animation")
+		UAnimMontage* AttackAnim;
+
+	UPROPERTY(EditAnywhere, Category = "Death Animation")
+		UAnimMontage* DeathAnim;
+
+	UFUNCTION(BlueprintCallable)
+		FHitResult LineTraceBySword(FVector Start, FVector End);
+
+	UFUNCTION(BlueprintCallable)
+		FHitResult SphereTraceByChase();
+
+	void Death();
+
+	FTimerHandle TimerHandle;
+
 
 protected:
 	// Called when the game starts or when spawned

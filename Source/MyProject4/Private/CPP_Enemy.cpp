@@ -17,8 +17,38 @@ void ACPP_Enemy::UpdateHealth(float Damage)
 	ACPP_Enemy::Health -= Damage;
 	if (Health <= 0.0f)
 	{
-		this->Destroy();
+		PlayAnimMontage(DeathAnim);
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ACPP_Enemy::Death, 2.5f);
 	}
+}
+
+FHitResult ACPP_Enemy::LineTraceBySword(FVector Start, FVector End)
+{
+	TArray<AActor*> Ignore;
+	FHitResult OutHit;
+
+	UKismetSystemLibrary::LineTraceSingle(this, Start, End, ETraceTypeQuery::TraceTypeQuery10, false, Ignore, EDrawDebugTrace::None, OutHit, true);
+
+	return OutHit;
+}
+
+FHitResult ACPP_Enemy::SphereTraceByChase()
+{
+	FHitResult OutHit;
+
+	FVector StartActorLoc = this->GetActorLocation();
+	FVector EndActorLoc = (UKismetMathLibrary::GetForwardVector(this->GetActorRotation()) * 200.0f) + StartActorLoc;
+
+	TArray<AActor*> Ignore;
+
+	UKismetSystemLibrary::SphereTraceSingle(this, StartActorLoc, EndActorLoc, 45.0f, ETraceTypeQuery::TraceTypeQuery10, false, Ignore, EDrawDebugTrace::None, OutHit, true);
+
+	return OutHit;
+}
+
+void ACPP_Enemy::Death()
+{
+	this->Destroy();
 }
 
 // Called when the game starts or when spawned
@@ -41,4 +71,3 @@ void ACPP_Enemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 }
-
