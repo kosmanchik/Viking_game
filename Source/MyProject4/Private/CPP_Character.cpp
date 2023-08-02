@@ -2,6 +2,8 @@
 
 
 #include "CPP_Character.h"
+#include "CPP_Enemy.h"
+#include "CPP_PickUp_Health.h"
 
 // Sets default values
 ACPP_Character::ACPP_Character()
@@ -56,6 +58,7 @@ void ACPP_Character::UpdateHealth(float Damage)
 void ACPP_Character::Death()
 {
 	UKismetSystemLibrary::PrintString(this, "Game Over");
+	bDead = true;
 	this->Destroy();
 }
 
@@ -85,6 +88,8 @@ void ACPP_Character::BeginPlay()
 		Player_Health_Widget = CreateWidget(GetWorld(), Player_Widget);
 		Player_Health_Widget->AddToViewport();
 	}
+
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ACPP_Character::OnBeginOverlap);
 }
 
 // Called every frame
@@ -109,6 +114,7 @@ void ACPP_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction("Dodge/Sprint", IE_Pressed, this, &ACPP_Character::StartSprint);
 	PlayerInputComponent->BindAction("Dodge/Sprint", IE_Repeat, this, &ACPP_Character::WhileSprint);
 	PlayerInputComponent->BindAction("Dodge/Sprint", IE_Released, this, &ACPP_Character::StopSprint);
+	PlayerInputComponent->BindAction("Action", IE_Pressed, this, &ACPP_Character::Action);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &ACPP_Character::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ACPP_Character::MoveRight);
@@ -203,5 +209,33 @@ void ACPP_Character::WhileSprint()
 	else
 	{
 		GetCharacterMovement()->MaxWalkSpeed = StartSpeed;
+	}
+}
+
+void ACPP_Character::Action()
+{
+	if (ACPP_Character::Health < 80.0f)
+	{
+		ACPP_Character::Health += 20.0f;
+		ACPP_Character::CountOfHeal--;
+	}
+	else if (ACPP_Character::Health < 100.0f)
+	{
+		ACPP_Character::Health = 100.0f;
+		ACPP_Character::CountOfHeal--;
+	}
+}
+
+void ACPP_Character::OnBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr))
+	{
+		if (Cast<ACPP_PickUp_Health>(OtherActor))
+		{	
+			if (CountOfHeal < 5)
+			{
+				CountOfHeal = 5;
+			}
+		}
 	}
 }

@@ -17,7 +17,6 @@
 #include "TimerManager.h"
 #include "Engine/EngineTypes.h"
 #include "Kismet/GameplayStatics.h"
-#include "CPP_Enemy.h"
 
 #include "CPP_Character.generated.h"
 
@@ -42,10 +41,12 @@ public:
 	void StartSprint();
 	void StopSprint();
 	void WhileSprint();
+	void Action();
 
 	bool bDead = false;
 	bool bIsRunning = false;
 	float StartSpeed = 0.0f;
+	
 
 	UPROPERTY(EditAnywhere, Category = "UI HUD")
 		TSubclassOf<UUserWidget> Player_Widget;
@@ -74,6 +75,14 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		void SwordTrace(FVector Start, FVector End);
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		int CountOfHeal = 3;
+
+	UFUNCTION()
+		void OnBeginOverlap(class UPrimitiveComponent* HitComp,
+			class AActor* OtherActor, class UPrimitiveComponent* OtherComp,
+			int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	TSubclassOf<UDamageType> DamageType;
 
@@ -89,5 +98,4 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
 };
