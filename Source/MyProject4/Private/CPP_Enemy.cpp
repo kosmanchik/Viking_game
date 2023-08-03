@@ -17,8 +17,9 @@ void ACPP_Enemy::UpdateHealth(float Damage)
 	ACPP_Enemy::Health -= Damage;
 	if (Health <= 0.0f)
 	{
+		bDead = true;
 		PlayAnimMontage(DeathAnim);
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ACPP_Enemy::Death, 2.5f);
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ACPP_Enemy::Death, 1.9f);
 	}
 }
 
@@ -27,7 +28,7 @@ FHitResult ACPP_Enemy::LineTraceBySword(FVector Start, FVector End)
 	TArray<AActor*> Ignore;
 	FHitResult OutHit;
 
-	UKismetSystemLibrary::LineTraceSingle(this, Start, End, ETraceTypeQuery::TraceTypeQuery10, false, Ignore, EDrawDebugTrace::None, OutHit, true);
+	UKismetSystemLibrary::LineTraceSingle(this, Start, End, ETraceTypeQuery::TraceTypeQuery10, false, Ignore, EDrawDebugTrace::ForDuration, OutHit, true);
 
 	return OutHit;
 }

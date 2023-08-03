@@ -79,10 +79,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		int CountOfHeal = 3;
 
-	UFUNCTION()
-		void OnBeginOverlap(class UPrimitiveComponent* HitComp,
-			class AActor* OtherActor, class UPrimitiveComponent* OtherComp,
-			int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	UFUNCTION(BluePrintCallable)
+		void UpdateCountOfHeal();
 
 	TSubclassOf<UDamageType> DamageType;
 

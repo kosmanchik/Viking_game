@@ -3,7 +3,6 @@
 
 #include "CPP_Character.h"
 #include "CPP_Enemy.h"
-#include "CPP_PickUp_Health.h"
 
 // Sets default values
 ACPP_Character::ACPP_Character()
@@ -23,7 +22,7 @@ ACPP_Character::ACPP_Character()
 
 	CameraBoom = CreateAbstractDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 300.0f;
+	CameraBoom->TargetArmLength = 800.0f;
 	CameraBoom->bUsePawnControlRotation = true;
 
 	FollowCamera = CreateAbstractDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
@@ -73,8 +72,16 @@ void ACPP_Character::SwordTrace(FVector Start, FVector End)
 	{
 		if (Cast<ACPP_Enemy>(OutHit.GetActor()))
 		{
-			UGameplayStatics::ApplyDamage(OutHit.GetActor(), 10.0f, this->GetController(), this, DamageType);
+			UGameplayStatics::ApplyDamage(OutHit.GetActor(), 5.0f, this->GetController(), this, DamageType);
 		}
+	}
+}
+
+void ACPP_Character::UpdateCountOfHeal()
+{
+	if (CountOfHeal < 5)
+	{
+		CountOfHeal = 5;
 	}
 }
 
@@ -89,7 +96,6 @@ void ACPP_Character::BeginPlay()
 		Player_Health_Widget->AddToViewport();
 	}
 
-	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ACPP_Character::OnBeginOverlap);
 }
 
 // Called every frame
@@ -108,8 +114,8 @@ void ACPP_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAxis("Look", this, &APawn::AddControllerPitchInput);
 
 	//Input for jumping, sprinting and dodge
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+	//PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	//PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 	PlayerInputComponent->BindAction("Dodge/Sprint", IE_DoubleClick, this, &ACPP_Character::Dodge);
 	PlayerInputComponent->BindAction("Dodge/Sprint", IE_Pressed, this, &ACPP_Character::StartSprint);
 	PlayerInputComponent->BindAction("Dodge/Sprint", IE_Repeat, this, &ACPP_Character::WhileSprint);
@@ -223,19 +229,5 @@ void ACPP_Character::Action()
 	{
 		ACPP_Character::Health = 100.0f;
 		ACPP_Character::CountOfHeal--;
-	}
-}
-
-void ACPP_Character::OnBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr))
-	{
-		if (Cast<ACPP_PickUp_Health>(OtherActor))
-		{	
-			if (CountOfHeal < 5)
-			{
-				CountOfHeal = 5;
-			}
-		}
 	}
 }

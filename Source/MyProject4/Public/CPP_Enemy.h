@@ -38,6 +38,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		FHitResult SphereTraceByChase();
+	
+	UPROPERTY(BlueprintReadWrite)
+		bool bDead = false;
 
 	void Death();
 
