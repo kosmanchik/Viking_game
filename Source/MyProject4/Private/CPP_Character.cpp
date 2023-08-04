@@ -3,6 +3,7 @@
 
 #include "CPP_Character.h"
 #include "CPP_Enemy.h"
+#include "CPP_PickUp_Health.h"
 
 // Sets default values
 ACPP_Character::ACPP_Character()
@@ -72,16 +73,27 @@ void ACPP_Character::SwordTrace(FVector Start, FVector End)
 	{
 		if (Cast<ACPP_Enemy>(OutHit.GetActor()))
 		{
-			UGameplayStatics::ApplyDamage(OutHit.GetActor(), 5.0f, this->GetController(), this, DamageType);
+			UGameplayStatics::ApplyDamage(OutHit.GetActor(), 10.0f, this->GetController(), this, DamageType);
+			OutHit.GetActor()->GetActorForwardVector() = OutHit.GetActor()->GetActorForwardVector() * 1050.0f;
+			UGameplayStatics::SpawnEmitterAtLocation(this, BloddFX, OutHit.Location, UKismetMathLibrary::MakeRotFromXY(OutHit.Normal, OutHit.Normal), true);
 		}
 	}
 }
 
-void ACPP_Character::UpdateCountOfHeal()
+bool ACPP_Character::ComboSystem()
 {
-	if (CountOfHeal < 5)
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance->Montage_IsPlaying(ComboAnim))
 	{
-		CountOfHeal = 5;
+		ACPP_Character::AttackIndex = 1;
+		ACPP_Character::Endurance -= 5;
+		ACPP_Character::RestoreEndurance();
+		return true;
+	}
+	else
+	{			
+		ACPP_Character::Endurance -= 5;
+		return false;
 	}
 }
 
@@ -95,7 +107,17 @@ void ACPP_Character::BeginPlay()
 		Player_Health_Widget = CreateWidget(GetWorld(), Player_Widget);
 		Player_Health_Widget->AddToViewport();
 	}
+}
 
+void ACPP_Character::ComboSystemNotify()
+{
+	ACPP_Character::AttackIndex--;
+	if (ACPP_Character::AttackIndex < 0)
+	{
+		GetMesh()->GetAnimInstance()->Montage_Stop(0.35f, ComboAnim);
+		ACPP_Character::AttackIndex = 0;
+		ACPP_Character::RestoreEndurance();
+	}
 }
 
 // Called every frame
@@ -120,7 +142,8 @@ void ACPP_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction("Dodge/Sprint", IE_Pressed, this, &ACPP_Character::StartSprint);
 	PlayerInputComponent->BindAction("Dodge/Sprint", IE_Repeat, this, &ACPP_Character::WhileSprint);
 	PlayerInputComponent->BindAction("Dodge/Sprint", IE_Released, this, &ACPP_Character::StopSprint);
-	PlayerInputComponent->BindAction("Action", IE_Pressed, this, &ACPP_Character::Action);
+	PlayerInputComponent->BindAction("Heal", IE_Pressed, this, &ACPP_Character::Heal);
+	PlayerInputComponent->BindAction("Action", IE_Pressed, this, &ACPP_Character::ActionRef);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &ACPP_Character::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ACPP_Character::MoveRight);
@@ -218,7 +241,7 @@ void ACPP_Character::WhileSprint()
 	}
 }
 
-void ACPP_Character::Action()
+void ACPP_Character::Heal()
 {
 	if (ACPP_Character::Health < 80.0f)
 	{
@@ -229,5 +252,16 @@ void ACPP_Character::Action()
 	{
 		ACPP_Character::Health = 100.0f;
 		ACPP_Character::CountOfHeal--;
+	}
+}
+
+void ACPP_Character::ActionRef()
+{
+	if (Cast<ACPP_PickUp_Health>(RefillActor))
+	{
+		if (CountOfHeal < 5)
+		{
+			CountOfHeal = 5;
+		}
 	}
 }

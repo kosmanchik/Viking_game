@@ -15,6 +15,8 @@ void ACPP_Enemy::UpdateHealth(float Damage)
 {
 	PlayAnimMontage(HitAnim);
 	ACPP_Enemy::Health -= Damage;
+	FVector BackwardVector = ACPP_Enemy::GetActorForwardVector() * - 750.0f;
+	//LaunchCharacter(BackwardVector, true, false);
 	if (Health <= 0.0f)
 	{
 		bDead = true;

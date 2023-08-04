@@ -2,7 +2,6 @@
 
 
 #include "CPP_PickUp_Health.h"
-#include "CPP_Character.h"
 
 // Sets default values
 ACPP_PickUp_Health::ACPP_PickUp_Health()

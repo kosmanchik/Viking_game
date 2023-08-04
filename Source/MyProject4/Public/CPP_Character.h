@@ -18,6 +18,7 @@
 #include "Engine/EngineTypes.h"
 #include "Kismet/GameplayStatics.h"
 
+
 #include "CPP_Character.generated.h"
 
 UCLASS()
@@ -41,7 +42,8 @@ public:
 	void StartSprint();
 	void StopSprint();
 	void WhileSprint();
-	void Action();
+	void Heal();
+	void ActionRef();
 
 	bool bDead = false;
 	bool bIsRunning = false;
@@ -71,16 +73,30 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Death Animation")
 		UAnimMontage* DeathAnim;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		AActor* RefillActor;
+
 	void Death();
 
 	UFUNCTION(BlueprintCallable)
 		void SwordTrace(FVector Start, FVector End);
+
+	UPROPERTY(EditAnywhere, Category = "HitFX")
+		UParticleSystem* BloddFX;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		int CountOfHeal = 3;
 
-	UFUNCTION(BluePrintCallable)
-		void UpdateCountOfHeal();
+	UFUNCTION(BlueprintCallable)
+		bool ComboSystem();
+
+	UFUNCTION(BlueprintCallable)
+		void ComboSystemNotify();
+
+	UPROPERTY(EditAnywhere)
+		UAnimMontage* ComboAnim;
+
+	int AttackIndex = 0;
 
 	TSubclassOf<UDamageType> DamageType;
 
