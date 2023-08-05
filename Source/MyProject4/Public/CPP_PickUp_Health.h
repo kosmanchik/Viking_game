@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
 
 #include "CPP_PickUp_Health.generated.h"
@@ -25,9 +24,6 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	UPROPERTY(VisibleAnywhere)
-		class UStaticMeshComponent* MyMesh;
 
 	UPROPERTY(VisibleAnywhere)
 		class UBoxComponent* MyCollision;

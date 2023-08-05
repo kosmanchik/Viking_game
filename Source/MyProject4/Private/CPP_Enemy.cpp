@@ -30,7 +30,7 @@ FHitResult ACPP_Enemy::LineTraceBySword(FVector Start, FVector End)
 	TArray<AActor*> Ignore;
 	FHitResult OutHit;
 
-	UKismetSystemLibrary::LineTraceSingle(this, Start, End, ETraceTypeQuery::TraceTypeQuery10, false, Ignore, EDrawDebugTrace::ForDuration, OutHit, true);
+	UKismetSystemLibrary::LineTraceSingle(this, Start, End, ETraceTypeQuery::TraceTypeQuery10, false, Ignore, EDrawDebugTrace::None, OutHit, true);
 
 	return OutHit;
 }
