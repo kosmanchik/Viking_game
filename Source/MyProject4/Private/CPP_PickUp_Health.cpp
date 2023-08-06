@@ -10,7 +10,7 @@ ACPP_PickUp_Health::ACPP_PickUp_Health()
 	PrimaryActorTick.bCanEverTick = true;
 
 	MyCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("My box collision"));
-	MyCollision->InitBoxExtent(FVector(512.0f, 512.0f, 512.0f));
+	MyCollision->InitBoxExtent(FVector(256.0f, 256.0f, 256.0f));
 
 	RootComponent = MyCollision;
 }

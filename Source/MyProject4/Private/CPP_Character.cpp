@@ -73,27 +73,10 @@ void ACPP_Character::SwordTrace(FVector Start, FVector End)
 	{
 		if (Cast<ACPP_Enemy>(OutHit.GetActor()))
 		{
-			UGameplayStatics::ApplyDamage(OutHit.GetActor(), 10.0f, this->GetController(), this, DamageType);
+			UGameplayStatics::ApplyDamage(OutHit.GetActor(), 5.0f, this->GetController(), this, DamageType);
 			OutHit.GetActor()->GetActorForwardVector() = OutHit.GetActor()->GetActorForwardVector() * 1050.0f;
 			UGameplayStatics::SpawnEmitterAtLocation(this, BloddFX, OutHit.Location, UKismetMathLibrary::MakeRotFromXY(OutHit.Normal, OutHit.Normal), true);
 		}
-	}
-}
-
-bool ACPP_Character::ComboSystem()
-{
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	if (AnimInstance->Montage_IsPlaying(ComboAnim))
-	{
-		ACPP_Character::AttackIndex = 1;
-		ACPP_Character::Endurance -= 5;
-		ACPP_Character::RestoreEndurance();
-		return true;
-	}
-	else
-	{			
-		ACPP_Character::Endurance -= 5;
-		return false;
 	}
 }
 
@@ -109,9 +92,25 @@ void ACPP_Character::BeginPlay()
 	}
 }
 
+
+bool ACPP_Character::ComboSystem()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance->Montage_IsPlaying(ComboAnim))
+	{
+		ACPP_Character::AttackIndex = 1;
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 void ACPP_Character::ComboSystemNotify()
 {
 	ACPP_Character::AttackIndex--;
+	ACPP_Character::Endurance -= 5;
 	if (ACPP_Character::AttackIndex < 0)
 	{
 		GetMesh()->GetAnimInstance()->Montage_Stop(0.35f, ComboAnim);
@@ -199,7 +198,7 @@ void ACPP_Character::Dodge()
 	if (!bDead && ACPP_Character::Endurance >= 10.0f)
 	{
 		FVector ForwardVector = ACPP_Character::GetActorForwardVector();
-		FVector DodgeRange = ForwardVector * 2500.0f;
+		FVector DodgeRange = ForwardVector * 5000.0f;
 
 		ACPP_Character::Endurance -= 10.0f;
 
@@ -263,5 +262,6 @@ void ACPP_Character::ActionRef()
 		{
 			CountOfHeal = 5;
 		}
+		PlayAnimMontage(SitAnim);
 	}
 }

@@ -73,6 +73,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Death Animation")
 		UAnimMontage* DeathAnim;
 
+	UPROPERTY(EditAnywhere, Category = "Sitting Animation")
+		UAnimMontage* SitAnim;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		AActor* RefillActor;
 
