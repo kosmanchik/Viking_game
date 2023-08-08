@@ -48,11 +48,15 @@ void ACPP_Character::UpdateHealth(float Damage)
 {
 	ACPP_Character::Health -= Damage;
 	PlayAnimMontage(HitAnim);
+	bCanMove = true;
 	if (ACPP_Character::Health <= 0)
 	{
 		PlayAnimMontage(DeathAnim);
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ACPP_Character::Death, 2.5f);
+		ACPP_Character::Death();
 	}
+	if (ACPP_Character::Endurance < 100.0f)
+		ACPP_Character::RestoreEndurance();
 }
 
 void ACPP_Character::Death()
@@ -96,8 +100,14 @@ void ACPP_Character::BeginPlay()
 bool ACPP_Character::ComboSystem()
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	bCanMove = false;
 	if (AnimInstance->Montage_IsPlaying(ComboAnim))
 	{
+		if (!bIsSoundPlayed)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, AttackSound, this->GetActorLocation());
+			bIsSoundPlayed = true;
+		}
 		ACPP_Character::AttackIndex = 1;
 		return true;
 	}
@@ -111,10 +121,13 @@ void ACPP_Character::ComboSystemNotify()
 {
 	ACPP_Character::AttackIndex--;
 	ACPP_Character::Endurance -= 5;
+	UGameplayStatics::PlaySoundAtLocation(this, AttackSound, this->GetActorLocation());
 	if (ACPP_Character::AttackIndex < 0)
 	{
 		GetMesh()->GetAnimInstance()->Montage_Stop(0.35f, ComboAnim);
+		bCanMove = true;
 		ACPP_Character::AttackIndex = 0;
+		ACPP_Character::bIsSoundPlayed = false;
 		ACPP_Character::RestoreEndurance();
 	}
 }
@@ -151,7 +164,7 @@ void ACPP_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 void ACPP_Character::MoveForward(float Axis)
 {
-	if (!bDead && !bIsRunning)
+	if (!bDead && !bIsRunning && bCanMove)
 	{
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
@@ -159,7 +172,7 @@ void ACPP_Character::MoveForward(float Axis)
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 		AddMovementInput(Direction, Axis);
 	}
-	else if (!bDead && bIsRunning)
+	else if (!bDead && bIsRunning && bCanMove)
 	{
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
@@ -173,7 +186,7 @@ void ACPP_Character::MoveForward(float Axis)
 
 void ACPP_Character::MoveRight(float Axis)
 {
-	if (!bDead && !bIsRunning)
+	if (!bDead && !bIsRunning && bCanMove)
 	{
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
@@ -181,7 +194,7 @@ void ACPP_Character::MoveRight(float Axis)
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		AddMovementInput(Direction, Axis);
 	}
-	else if (!bDead && bIsRunning)
+	else if (!bDead && bIsRunning && bCanMove)
 	{
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
@@ -210,7 +223,7 @@ void ACPP_Character::Dodge()
 
 void ACPP_Character::StartSprint()
 {
-	if (!bDead && ACPP_Character::Endurance > 0.0f)
+	if (!bDead && ACPP_Character::Endurance > 0.0f && bCanMove)
 	{
 		ACPP_Character::bIsRunning = true;
 		StartSpeed = GetCharacterMovement()->MaxWalkSpeed;
@@ -264,4 +277,5 @@ void ACPP_Character::ActionRef()
 		}
 		PlayAnimMontage(SitAnim);
 	}
+	bIsSoundPlayed = true; //fix bug with playing sound attack while sitting
 }

@@ -2,6 +2,7 @@
 
 
 #include "CPP_Enemy.h"
+#include "CPP_Character.h"
 
 // Sets default values
 ACPP_Enemy::ACPP_Enemy()
@@ -25,28 +26,45 @@ void ACPP_Enemy::UpdateHealth(float Damage)
 	}
 }
 
-FHitResult ACPP_Enemy::LineTraceBySword(FVector Start, FVector End)
+void ACPP_Enemy::LineTraceBySword(FVector Start, FVector End)
 {
 	TArray<AActor*> Ignore;
 	FHitResult OutHit;
 
 	UKismetSystemLibrary::LineTraceSingle(this, Start, End, ETraceTypeQuery::TraceTypeQuery10, false, Ignore, EDrawDebugTrace::None, OutHit, true);
 
-	return OutHit;
+	if (OutHit.GetActor())
+	{
+		if (Cast<ACPP_Character>(OutHit.GetActor()))
+		{
+			UGameplayStatics::ApplyDamage(OutHit.GetActor(), 5.0f, this->GetController(), this, DamageType);
+		}
+	}
 }
 
-FHitResult ACPP_Enemy::SphereTraceByChase()
+void ACPP_Enemy::SphereTraceByChase()
 {
-	FHitResult OutHit;
+	if (!bDead)
+	{
+		FHitResult OutHit;
 
-	FVector StartActorLoc = this->GetActorLocation();
-	FVector EndActorLoc = (UKismetMathLibrary::GetForwardVector(this->GetActorRotation()) * 200.0f) + StartActorLoc;
+		FVector StartActorLoc = this->GetActorLocation();
+		FVector EndActorLoc = (UKismetMathLibrary::GetForwardVector(this->GetActorRotation()) * 200.0f) + StartActorLoc;
 
-	TArray<AActor*> Ignore;
+		TArray<AActor*> Ignore;
 
-	UKismetSystemLibrary::SphereTraceSingle(this, StartActorLoc, EndActorLoc, 45.0f, ETraceTypeQuery::TraceTypeQuery10, false, Ignore, EDrawDebugTrace::None, OutHit, true);
+		UKismetSystemLibrary::SphereTraceSingle(this, StartActorLoc, EndActorLoc, 45.0f, ETraceTypeQuery::TraceTypeQuery10, false, Ignore, EDrawDebugTrace::None, OutHit, true);
 
-	return OutHit;
+		if (OutHit.GetActor())
+		{
+			if (Cast<ACPP_Character>(OutHit.GetActor()))
+			{
+				PlayAnimMontage(AttackAnim);
+				GetWorld()->GetTimerManager().SetTimer(TimerHandle, 10.0f, true);
+				UGameplayStatics::SpawnEmitterAtLocation(this, BloddFX, OutHit.Location, UKismetMathLibrary::MakeRotFromXY(OutHit.Normal, OutHit.Normal), true);
+			}
+		}
+	}
 }
 
 void ACPP_Enemy::Death()

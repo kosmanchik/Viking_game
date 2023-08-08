@@ -45,7 +45,12 @@ public:
 	void Heal();
 	void ActionRef();
 
-	bool bDead = false;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		bool bDead = false;
+
+	UPROPERTY(BlueprintReadWrite)
+		bool bCanMove = true;
+
 	bool bIsRunning = false;
 	float StartSpeed = 0.0f;
 	
@@ -98,6 +103,11 @@ public:
 
 	UPROPERTY(EditAnywhere)
 		UAnimMontage* ComboAnim;
+
+	UPROPERTY(EditAnywhere, Category = "Sound Attack")
+		USoundBase* AttackSound;
+
+	bool bIsSoundPlayed = false;
 
 	int AttackIndex = 0;
 

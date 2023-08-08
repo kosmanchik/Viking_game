@@ -34,13 +34,18 @@ public:
 		UAnimMontage* DeathAnim;
 
 	UFUNCTION(BlueprintCallable)
-		FHitResult LineTraceBySword(FVector Start, FVector End);
+		void LineTraceBySword(FVector Start, FVector End);
 
 	UFUNCTION(BlueprintCallable)
-		FHitResult SphereTraceByChase();
-	
+		void SphereTraceByChase();
+
+	UPROPERTY(EditAnywhere, Category = "Hit FX")
+		UParticleSystem* BloddFX;
+
 	UPROPERTY(BlueprintReadWrite)
 		bool bDead = false;
+
+	TSubclassOf<UDamageType> DamageType;
 
 	void Death();
 
