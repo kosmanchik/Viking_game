@@ -61,8 +61,15 @@ void ACPP_Character::UpdateHealth(float Damage)
 
 void ACPP_Character::Death()
 {
-	UKismetSystemLibrary::PrintString(this, "Game Over");
 	bDead = true;
+
+	if (GameOver_Widget_SubClass != nullptr)
+	{
+		Player_Health_Widget->RemoveFromParent();
+		GameOver_Widget = CreateWidget(GetWorld(), GameOver_Widget_SubClass);
+		GameOver_Widget->AddToViewport();
+	}
+
 	this->Destroy();
 }
 
@@ -269,6 +276,11 @@ void ACPP_Character::Heal()
 
 void ACPP_Character::ActionRef()
 {
+	TimerDelegate.BindLambda([&]()
+		{
+			bIsSitting = false;
+		});
+
 	if (Cast<ACPP_PickUp_Health>(RefillActor))
 	{
 		if (CountOfHeal < 5)
@@ -278,4 +290,5 @@ void ACPP_Character::ActionRef()
 		PlayAnimMontage(SitAnim);
 	}
 	bIsSoundPlayed = true; //fix bug with playing sound attack while sitting
+	RefillActor = nullptr;
 }

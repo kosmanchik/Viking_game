@@ -60,6 +60,11 @@ public:
 
 	UUserWidget* Player_Health_Widget;
 
+	UPROPERTY(EditAnywhere, Category = "Game Over HUD")
+		TSubclassOf<UUserWidget> GameOver_Widget_SubClass;
+
+	UUserWidget* GameOver_Widget;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float Endurance = 100.0f;
 
