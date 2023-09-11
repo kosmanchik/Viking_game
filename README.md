@@ -1,8 +1,7 @@
-# RUSS game
+# Viking game
 
-Souls-like game, based on famous russian-speaking meme about war between ancient Russ and Lizards aliens
-This is joke-game, made by gamedev enjoyer
-This's my first experience in gamedev.
+Souls-like game, my first try at something serious in UE5.
+Also this's my first experience in gamedev.
 Developed with Unreal Engine 5
 
 # Developed by Kosmanchik
